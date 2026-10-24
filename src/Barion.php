@@ -11,18 +11,12 @@ final class Barion
 {
     private bool $liveEnv;
 
-    private string $posKey;
-
-    private string $callbackUrl;
-
-    private string $redirectUrl;
+    private ?string $posKey;
 
     public function __construct()
     {
-        $this->liveEnv = config('barion.live_env');
+        $this->liveEnv = (bool) config('barion.live_env');
         $this->posKey = config('barion.pos_key');
-        $this->callbackUrl = config('barion.callback_url');
-        $this->redirectUrl = config('barion.redirect_url');
     }
 
     public function initPayment(array $data): array
@@ -64,6 +58,10 @@ final class Barion
 
     private function setHeaders(): array
     {
+        if (blank($this->posKey)) {
+            throw new Exception('Barion POS key is not configured (BARION_POS_KEY).');
+        }
+
         return [
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
